@@ -11,7 +11,7 @@ class State:
         self.grid = grid
 
     def __str__(self) -> str:
-        return self.grid
+        return f"{self.grid}"
 
 with open(sys.argv[1], 'r') as f:
     lines = f.readlines()
@@ -31,30 +31,40 @@ goal = State([["A","B"],["D","E","F"],[]])
 
 State.stateHistory.append(start)
 
-def moveGen(state):
+def MoveGen(state):
     neighbors = []
     # find the neighbors of the current state
     for i in range(len(state.grid)):
         if state.grid[i] != []:
-            for j in range(len(state.grid[i])):
-                pass
+            Si = State(state.grid)
+            Sii = State(state.grid) 
+            a = Si.grid[i].pop()
+            b = Sii.grid[i].pop()
+            Si.grid[(i+1)%3].append(a)
+            Sii.grid[(i+2)%3].append(b)
+            neighbors.append(Si)
+            neighbors.append(Sii)
     return neighbors
         
 def OrdHeuristic(s: State):
     g = goal
     ret = 0
     for i in range(len(s.grid)):
-        for j in range(len(s.grid[i])):
-            ret += abs(ord(s.grid[i][j])-ord(s.grid[i][j]))
+        for j in s.grid[i]:
+            if j in g.grid[i]:
+                ret += abs(ord(j)-ord(g.grid[i][g.grid[i].index(j)]))
+            else:
+                ret += abs(ord(j))
             
     return ret
-    
+
 print(f"\n{OrdHeuristic(start)}\n")
 
-listOfStates = moveGen(start)
-print(listOfStates)
-for i in range(len(listOfStates)):
-    print(listOfStates[i].grid)
+listOfStates = MoveGen(start)
+
+for _D in listOfStates:
+    print(_D)
+
 
 # = 0
 #for line in Input:
