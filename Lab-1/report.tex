@@ -1,0 +1,241 @@
+\documentclass{article}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm2e}
+\RestyleAlgo{ruled}
+
+\graphicspath{{~/Documents/sem4/AI_LAB/Lab-1/images/}}
+
+\title{CS 312 Assignment 1 Report; Team - 21}
+\author{M V Karthik (200010030), Josyula V N Taraka Abhishek (200010021)}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+The goal of this task is to teach Pacman how to intelligently find his food by using 
+breadth-first search, depth-first search, and DFID in the state space. The state-space consists of
+an m x n grid. The start state is (0,0). The goal state is the position of (*) in the grid. The
+Pacman is allowed to move UP, DOWN, LEFT and RIGHT (except for boundary).  
+
+We compare above three alogorithms on:
+\begin{enumerate}
+    \item Path Length
+    \item Number of states explored
+    \item Dependence of result on the order of neighbours added.
+\end{enumerate}
+
+\section{Pseudo Codes}
+Pseudo code for  alogorithms is given below.
+
+\subsection{Function MoveGen(state)}
+
+
+\begin{algorithm}[H]
+    \caption{MoveGen(state)}
+    \textbf{Function} $MoveGen(state)$ \;
+    $StatesList \leftarrow [~~]$\;
+    \For{$Neighbour N of state in order(Down, Up, Right, Left)$}{
+        \If{$N is not boundary$}{
+            $StatesList.append(N)$
+        }
+
+    }
+    $return ~ StatesList$      
+\end{algorithm}
+
+\subsection{GoalTest(state)}
+Returns True if input state is goal state
+\\
+\begin{algorithm}[H]
+    \caption{GoalTest(state)}
+    \textbf{Function} $GoalTest(state)$ \;
+    \If{$state.value == '*'$}{
+        $return True$
+    }
+    $return False$
+\end{algorithm}
+
+\subsection{BFS()}
+Implementation of Breadth First search
+\\
+\begin{algorithm}[H]
+    \caption{BFS()}
+    \textbf{Function} $BFS()$\;
+    \If{$source \&\& goal == InGraph$}{
+        $Q = [~~]$\;
+        $Q.append(source)$\;
+    }
+    \While{$Q.NotEmpty$}{
+        $statesExplored += 1$\;
+        $current = Q.popleft()$\;
+        \If{$GoalTest(current)$}{
+            $makePath(source,goal)$\;
+            $return distance$\;
+        }
+        $Q.append(MoveGen(current))$
+    }
+\end{algorithm}
+\subsection{{DFS()}}
+Implementation of Depth First Search
+\\
+\begin{algorithm}[H]
+    \caption{DFS()}
+    \textbf{Function} $DFS()$\;
+    \If{$source \&\& goal == InGraph$}{
+        $S = [~~]$\;
+        $S.append(source)$\;
+    }
+    \While{$S.NotEmpty$}{
+        $statesExplored += 1$\;
+        $current = Q.pop()$\;
+        \If{$GoalTest(current)$}{
+            $makePath(source,goal)$\;
+            $return distance$\;
+        }
+        $Q.append(MoveGen(current))$
+    }
+\end{algorithm}
+
+\subsection{{DFID()}}
+Implementation of Iterative Deepening Depth First Search
+\\
+\begin{algorithm}[H]
+    \caption{DFID()}
+    \textbf{Function} $DFID()$\;
+    \If{$source \&\& goal == InGraph$}{
+       \If{$Depth == 0$}{
+           $return -1$\;
+       }
+       $distancefromsource(current)$
+    }
+    \If{$GoalTest(current)$}{
+        $makePath(source,goal)$\;
+        $return distance$\;
+    }
+    $statesExplored += 1$\;
+    $MoveGen(current)$\;
+    $Depth = 1$\;
+    \While{True}{
+        $DFID()$\;
+        \If{$GoalTest(current)$}{
+            $break$
+        }
+        $Depth+=1$
+    }
+\end{algorithm}
+
+\section{Comparison}
+
+The following Table corresponds to Order: Down$>$ Up$>$Right$>$Left
+
+\begin{table}[H]
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    Algorithm & Grid & States Explored & Path Length \\
+    \hline
+    BFS & 2*2 & 13  & 10 \\
+    \hline
+    DFS & 2*2 & 14 & 10 \\
+    \hline
+    DFID & 2*2 & 62 & 10 \\
+    \hline
+    BFS & 4*4 & 44 & 28 \\
+    \hline
+    DFS & 4*4 & 35 & 32 \\
+    \hline
+    DFID & 4*4 & 645 & 32 \\
+    \hline
+    BFS & 6*6 & 117 & 38 \\
+    \hline
+    DFS & 6*6 & 71 & 46 \\
+    \hline
+    DFID & 6*6 & 2469 & 44 \\
+    \hline
+    BFS & 8*8 & 137 & 88 \\
+    \hline
+    DFS & 8*8 & 194 & 102 \\
+    \hline
+    DFID & 8*8 & 6906 & 102 \\
+    \hline
+    BFS & 10*10 & 348 & 126 \\
+    \hline
+    DFS & 10*10 & 257 & 148 \\
+    \hline
+    DFID & 10*10 & 29647 & 148 \\
+    \hline
+
+\end{tabular}
+\caption{Order: Down$>$ Up$>$Right$>$Left}
+\end{table}
+
+The following Table corresponds to Order: Right$>$Left$>$Down$>$Up.
+
+\begin{table}[H]
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    Algorithm & Grid & States Explored & Path Length \\
+    \hline
+    BFS &2*2 & 13 & 10 \\
+    \hline
+    DFS &2*2 & 13 & 10 \\
+    \hline
+    DFID &2*2 & 63 & 10 \\
+    \hline
+    BFS &4*4 & 42 & 28 \\
+    \hline
+    DFS &4*4 & 48 & 28 \\
+    \hline
+    DFID &4*4 & 578 & 28\\
+    \hline
+    BFS &6*6 & 117 & 38 \\
+    \hline
+    DFS &6*6 & 93 & 38\\
+    \hline
+    DFID &6*6 & 2161 & 38\\
+    \hline
+    BFS &8*8 & 137 & 88 \\
+    \hline
+    DFS &8*8 & 187 & 88\\
+    \hline
+    DFID &8*8 & 5657 & 88\\
+    \hline
+    BFS &10*10 & 346 & 126\\
+    \hline
+    DFS &10*10 & 247 & 126\\
+    \hline
+    DFID &10*10 & 24925 & 126 \\
+    \hline
+\end{tabular}
+\caption{Order: Right$>$Left$>$Down$>$Up}
+\end{table}
+
+\section{Conclusion}
+
+The dependence of states explored and path Length are summarized below.
+
+\begin{table}[H]
+    \caption{Dependence on Order of Neighbours}
+
+\begin{tabular}{|c|c|c|}
+    \hline
+    Algorithm & States Explored  & Path Length \\
+    \hline
+    BFS & True & False \\
+    \hline
+    DFS & True & True \\
+    \hline
+    DFID & True & True \\
+    \hline
+\end{tabular}
+\end{table}
+
+\textbf{Inference: }
+\begin{enumerate}
+    \item The number of states explored by BFS and DFS are generally different but do not vary substantially among themselves.
+    \item The number of states explored by DFID is relatively larger when compared to those explored by BFS and DFS due to the fact of finding optimal path in DFID with cycles within the graph may require visiting a node multiple times.
+    \item The order of visiting adjacent cells does affects the result obtained. It is evident from the plots of cumulative analysis seen above, though the difference in the path lengths obtained and number of states explored in each case is not substantially large.
+    \item BFS always yields paths of shorter (or equal to) lengths than those yielded by DFS.
+\end{enumerate}
+\end{document}
