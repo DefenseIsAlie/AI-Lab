@@ -5,7 +5,9 @@ import sys, collections, typing, copy, heapq
 #SearchType = int(Input.readline())
 
 class State:
-    stateHistory = []
+    stateHistory = []  # closed list
+    stateNeighbours = [] # open list
+    statesExplored = 0
     # grid is an 2-d array.
     def __init__(self, grid):
         # store copy of grid
@@ -36,13 +38,12 @@ def MoveGen(state, heuristic):
                 # find the heuristic value of the new state
                 h = -1*heuristic(newState_1)
                 # add the new state to the priority queue
-                heapq.heappush(neighbors, (h, newState_1))
+                heapq.heappush(State.stateNeighbours, (h, newState_1))
             if newState_2.grid != state.grid and not any(newState_2.grid == x.grid for x in State.stateHistory):
                 # find the heuristic value of the new state
                 h = heuristic(newState_2)
                 # add the new state to the priority queue
-                heapq.heappush(neighbors, (h, newState_2))
-    return
+                heapq.heappush(State.stateNeighbours, (h, newState_2))
 
 def OrdHeuristic(s: State):
     g = goal
@@ -73,8 +74,15 @@ goal = State([["A","B"],["D","E","F"],[]])
 
 State.stateHistory.append(start)
 
-
-neighbors = []
 MoveGen(start, OrdHeuristic)
-for i in range(len(neighbors)):
-    print(neighbors[i][1].grid)
+
+for i in range(len(State.stateNeighbours)):
+    print(State.stateNeighbours[i][1].grid)
+
+
+def BestFirstSearch():
+    #insert start in priorQueue
+    #delete elements of priorQ one by one
+    #if element is goal exit
+    #else traverese neighbours
+    pass
