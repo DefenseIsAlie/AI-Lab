@@ -36,12 +36,12 @@ def MoveGen(state, heuristic):
             newState_2.grid[(i+2)%3].append(upperBlock)
             if newState_1.grid != state.grid and not any(newState_1.grid == x.grid for x in State.stateHistory):
                 # find the heuristic value of the new state
-                h = -1*heuristic(newState_1)
+                h = heuristic(newState_1)
                 # add the new state to the priority queue
                 heapq.heappush(State.stateNeighbours, (h, newState_1))
             if newState_2.grid != state.grid and not any(newState_2.grid == x.grid for x in State.stateHistory):
                 # find the heuristic value of the new state
-                h = -1 * heuristic(newState_2)
+                h = heuristic(newState_2)
                 # add the new state to the priority queue
                 heapq.heappush(State.stateNeighbours, (h, newState_2))
 
@@ -54,7 +54,7 @@ def OrdHeuristic(s: State):
                 ret += abs(ord(j)-ord(g.grid[i][g.grid[i].index(j)]))
             else:
                 ret += abs(ord(j))
-    return ret
+    return -1*ret
 
 def heuristic():
     pass
@@ -72,17 +72,27 @@ with open(sys.argv[1], 'r') as f:
 start = State([["A", "E"], ["F"], ["B","D"]])
 goal = State([["A","B"],["D","E","F"],[]])
 
-State.stateHistory.append(start)
+def goalTest(s: State):
+    g = goal
+    for i in range(len(g.grid)):
+        for j in g.grid[i]:
+            if j not in s.grid[i]:
+                return False
+            elif g.grid[i].index(j) == s.grid[i].index(j):
+                continue
+    return True
 
-MoveGen(start, OrdHeuristic)
+print(goalTest(goal))
 
-for i in range(len(State.stateNeighbours)):
-    print(State.stateNeighbours[i][1].grid)
+#MoveGen(start, OrdHeuristic)
 
+#for i in range(len(State.stateNeighbours)):
+#    print(State.stateNeighbours[i][1].grid)
 
 def BestFirstSearch():
     #insert start in priorQueue
     #delete elements of priorQ one by one
     #if element is goal exit
     #else traverese neighbours
+
     pass
