@@ -35,15 +35,24 @@ def MoveGen(state, heuristic):
             newState_1.grid[(i+1)%3].append(upperBlock)
             newState_2.grid[(i+2)%3].append(upperBlock)
             if newState_1.grid != state.grid and not any(newState_1.grid == x.grid for x in State.stateHistory):
+                newState_1.parent = state
                 # find the heuristic value of the new state
                 h = heuristic(newState_1)
                 # add the new state to the priority queue
                 heapq.heappush(State.stateNeighbours, (h, newState_1))
             if newState_2.grid != state.grid and not any(newState_2.grid == x.grid for x in State.stateHistory):
+                newState_2.parent = state
                 # find the heuristic value of the new state
                 h = heuristic(newState_2)
                 # add the new state to the priority queue
                 heapq.heappush(State.stateNeighbours, (h, newState_2))
+
+def backTrace(s: State):
+    ret = []
+    while s.parent != None:
+        ret.append(s.grid)
+        s = s.parent
+    return ret
 
 def OrdHeuristic(s: State):
     g = goal
@@ -54,7 +63,7 @@ def OrdHeuristic(s: State):
                 ret += abs(ord(j)-ord(g.grid[i][g.grid[i].index(j)]))
             else:
                 ret += abs(ord(j))
-    return -1*ret
+    return ret
 
 #def heuristic():
 #    pass
@@ -74,15 +83,7 @@ goal = State([["A","B"],["D","E","F"],[]])
 
 def goalTest(s: State):
     g = goal
-    for i in range(len(g.grid)):
-        for j in g.grid[i]:
-            if j not in s.grid[i]:
-                return False
-            elif g.grid[i].index(j) == s.grid[i].index(j):
-                continue
-    return True
-
-print(goalTest(goal))
+    return s.grid == g.grid
 
 #MoveGen(start, OrdHeuristic)
 
@@ -96,14 +97,15 @@ def BestFirstSearch(heuristic):
     #else traverese neighbours
     heapq.heappush(State.stateNeighbours,(0,start))
     while State.stateNeighbours != []:
-        current = heapq.heappop(State.stateNeighbours)
+        current = heapq.heappop(State.stateNeighbours)[1]
         State.stateHistory.append(current)
         if goalTest(current):
-            return State.stateHistory
+            return current
         else :
             MoveGen(current,heuristic)
 
 ans = BestFirstSearch(OrdHeuristic)
 
-for _ in ans:
-    print(_)
+ans = backTrace(ans)
+for i in range(len(ans)-1,-1,-1):
+    print(ans[i])
