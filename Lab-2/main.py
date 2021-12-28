@@ -56,8 +56,8 @@ def OrdHeuristic(s: State):
                 ret += abs(ord(j))
     return -1*ret
 
-def heuristic():
-    pass
+#def heuristic():
+#    pass
 
 with open(sys.argv[1], 'r') as f:
     lines = f.readlines()
@@ -89,10 +89,21 @@ print(goalTest(goal))
 #for i in range(len(State.stateNeighbours)):
 #    print(State.stateNeighbours[i][1].grid)
 
-def BestFirstSearch():
+def BestFirstSearch(heuristic):
     #insert start in priorQueue
     #delete elements of priorQ one by one
     #if element is goal exit
     #else traverese neighbours
+    heapq.heappush(State.stateNeighbours,(0,start))
+    while State.stateNeighbours != []:
+        current = heapq.heappop(State.stateNeighbours)
+        State.stateHistory.append(current)
+        if goalTest(current):
+            return State.stateHistory
+        else :
+            MoveGen(current,heuristic)
 
-    pass
+ans = BestFirstSearch(OrdHeuristic)
+
+for _ in ans:
+    print(_)
