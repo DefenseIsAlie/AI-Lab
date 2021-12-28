@@ -1,4 +1,4 @@
-import sys, collections, typing
+import sys, collections, typing, copy
 
 #t = sys.argv[1]
 #Input = open(t)
@@ -8,6 +8,7 @@ class State:
     stateHistory = []
     # grid is an 2-d array.
     def __init__(self, grid):
+        # store copy of grid
         self.grid = grid
 
     def __str__(self) -> str:
@@ -21,29 +22,28 @@ with open(sys.argv[1], 'r') as f:
         if line:
             inputLine.append(line)
     startState = inputLine[:3]
-    print(startState)
     goalState = inputLine[-3:]
-    print(goalState)
     del inputLine
 
 start = State([["A", "E"], ["F"], ["B","D"]])
 goal = State([["A","B"],["D","E","F"],[]])
 
-State.stateHistory.append(start)
 
 def MoveGen(state):
     neighbors = []
     # find the neighbors of the current state
     for i in range(len(state.grid)):
         if state.grid[i] != []:
-            Si = State(state.grid)
-            Sii = State(state.grid) 
-            a = Si.grid[i].pop()
-            b = Sii.grid[i].pop()
-            Si.grid[(i+1)%3].append(a)
-            Sii.grid[(i+2)%3].append(b)
-            neighbors.append(Si)
-            neighbors.append(Sii)
+            newState_1 = State(copy.deepcopy(state.grid))
+            newState_2 = State(copy.deepcopy(state.grid))
+            upperBlock = newState_1.grid[i].pop()
+            newState_2.grid[i].pop()
+            newState_1.grid[(i+1)%3].append(upperBlock)
+            newState_2.grid[(i+2)%3].append(upperBlock)
+            if newState_1.grid != state.grid:
+                neighbors.append(newState_1)
+            if newState_2.grid != state.grid:
+                neighbors.append(newState_2)
     return neighbors
         
 def OrdHeuristic(s: State):
@@ -58,20 +58,9 @@ def OrdHeuristic(s: State):
             
     return ret
 
-print(f"\n{OrdHeuristic(start)}\n")
+print(f"{OrdHeuristic(start)}")
 
 listOfStates = MoveGen(start)
-
 for _D in listOfStates:
-    print(_D)
-
-
-# = 0
-#for line in Input:
-#    if j==0 :
-#        for i in range(len(line)):
-#            start._stackA.append(line[i])
-#            j+=1
-#    if j==1 :
-#        for i in range
+    print(_D.grid)
 
