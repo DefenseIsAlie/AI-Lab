@@ -1,4 +1,4 @@
-import sys, collections, typing, copy
+import sys, collections, typing, copy, heapq
 
 #t = sys.argv[1]
 #Input = open(t)
@@ -28,6 +28,7 @@ with open(sys.argv[1], 'r') as f:
 start = State([["A", "E"], ["F"], ["B","D"]])
 goal = State([["A","B"],["D","E","F"],[]])
 
+State.stateHistory.append(start)
 
 def MoveGen(state):
     neighbors = []
@@ -40,9 +41,9 @@ def MoveGen(state):
             newState_2.grid[i].pop()
             newState_1.grid[(i+1)%3].append(upperBlock)
             newState_2.grid[(i+2)%3].append(upperBlock)
-            if newState_1.grid != state.grid:
+            if newState_1.grid != state.grid and not any(newState_1.grid == x.grid for x in State.stateHistory):
                 neighbors.append(newState_1)
-            if newState_2.grid != state.grid:
+            if newState_2.grid != state.grid and not any(newState_2.grid == x.grid for x in State.stateHistory):
                 neighbors.append(newState_2)
     return neighbors
         
@@ -55,10 +56,9 @@ def OrdHeuristic(s: State):
                 ret += abs(ord(j)-ord(g.grid[i][g.grid[i].index(j)]))
             else:
                 ret += abs(ord(j))
-            
     return ret
 
-print(f"{OrdHeuristic(start)}")
+
 
 listOfStates = MoveGen(start)
 for _D in listOfStates:
