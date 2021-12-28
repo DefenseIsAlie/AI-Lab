@@ -41,7 +41,7 @@ def MoveGen(state, heuristic):
                 heapq.heappush(State.stateNeighbours, (h, newState_1))
             if newState_2.grid != state.grid and not any(newState_2.grid == x.grid for x in State.stateHistory):
                 # find the heuristic value of the new state
-                h = heuristic(newState_2)
+                h = -1 * heuristic(newState_2)
                 # add the new state to the priority queue
                 heapq.heappush(State.stateNeighbours, (h, newState_2))
 
