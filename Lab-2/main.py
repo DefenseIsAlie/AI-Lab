@@ -34,7 +34,7 @@ def MoveGen(state, heuristic):
             newState_2.grid[(i+2)%3].append(upperBlock)
             if newState_1.grid != state.grid and not any(newState_1.grid == x.grid for x in State.stateHistory):
                 # find the heuristic value of the new state
-                h = heuristic(newState_1)
+                h = -1*heuristic(newState_1)
                 # add the new state to the priority queue
                 heapq.heappush(neighbors, (h, newState_1))
             if newState_2.grid != state.grid and not any(newState_2.grid == x.grid for x in State.stateHistory):
