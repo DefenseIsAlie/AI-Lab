@@ -74,6 +74,56 @@ def arthmetic_heuristic(s: State):
             correctPositions -= i
     return -1* correctPositions
 
+def ManhattanHeuristic(s: State):
+    g = goal
+    ret = 0
+    for i in range(3):
+        for j in g.grid[i]:
+            if j in s.grid[i]:
+                ret +=  abs((g.grid[i].index(j) - s.grid[i].index(j)))
+            else:
+                for k in range(3):
+                    if j in  s.grid[k]:
+                        ret += abs(i -k) + abs(g.grid[i].index(j)-s.grid[k].index(j))
+    return ret
+
+def L2Norm(s: State):
+    g = goal
+    ret = 0
+    for i in range(3):
+        for j in g.grid[i]:
+            if j in s.grid[i]:
+                ret +=  abs((g.grid[i].index(j) - s.grid[i].index(j)))**2
+            else:
+                for k in range(3):
+                    if j in  s.grid[k]:
+                        ret += (abs(i -k)**2 + abs(g.grid[i].index(j)-s.grid[k].index(j))**2)
+    return ret
+
+def PositionBased(s: State):
+    pass
+
+def HillClimbing(heuristic):
+    if goalTest(start):
+        return start
+    heapq.heappush(State.stateNeighbours,(0,start))
+    current = heapq.heappop(State.stateNeighbours)[1]
+    State.stateHistory.append(current)
+    heapq.heappush(State.stateNeighbours,(0,start))
+    while State.stateNeighbours !=[]:
+        if goalTest(current):
+            return current
+        MoveGen(current,heuristic)
+        tmp = heapq.heappop(State.stateNeighbours)[1]
+        State.stateHistory.append(tmp)
+        if heuristic(tmp) > heuristic(current):
+            current = State(copy.deepcopy(tmp.grid))
+
+
+    
+
+#def heuristic():
+#    pass
 
 with open(sys.argv[1], 'r') as f:
     lines = f.readlines()
@@ -85,8 +135,8 @@ with open(sys.argv[1], 'r') as f:
     startState = inputLine[:3]
     goalState = inputLine[-3:]
     del inputLine
-start = State([["A", "E"], ["F"], ["B","D"]])
-goal = State([["A","B"],["D","E","F"],[]])
+start = State([[], ["B","A","F"], ["C","G","E"]])
+goal = State([["G"],["F","E"],["C","B","A"]])
 
 def goalTest(s: State):
     g = goal
@@ -108,7 +158,13 @@ def BestFirstSearch(heuristic):
         else :
             MoveGen(current,heuristic)
 
-ans = BestFirstSearch(arthmetic_heuristic)
+#ans = BestFirstSearch(OrdHeuristic)
+#ans = BestFirstSearch(L2Norm)
+#ans = BestFirstSearch(ManhattanHeuristic)
+ans = HillClimbing(ManhattanHeuristic)
+
+for l in State.stateHistory:
+    print(l)
 
 for i in range(len(ans)):
     print(ans[i])
