@@ -65,8 +65,18 @@ def OrdHeuristic(s: State):
                 ret += abs(ord(j))
     return ret
 
-def Heuristic1(s: State):
-    pass
+def ManhattanHeuristic(s: State):
+    g = goal
+    ret = 0
+    for i in range(3):
+        for j in g.grid[i]:
+            if j in s.grid[i]:
+                ret +=  abs((g.grid[i].index(j) - s.grid[i].index(j)))
+            else:
+                for k in range(3):
+                    if j in  s.grid[k]:
+                        ret += abs(i -k) + abs(g.grid[i].index(j)-s.grid[k].index(j))
+    return ret
 
 def Heuristic2(s: State):
     pass
@@ -131,8 +141,8 @@ def BestFirstSearch(heuristic):
         else :
             MoveGen(current,heuristic)
 
-#ans = BestFirstSearch(OrdHeuristic)
-ans = HillClimbing(OrdHeuristic)
+ans = BestFirstSearch(ManhattanHeuristic)
+#ans = HillClimbing(OrdHeuristic)
 
 ans = backTrace(ans)
 for i in range(len(ans)-1,-1,-1):
