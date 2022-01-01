@@ -52,7 +52,7 @@ def backTrace(s: State):
     while s.parent != None:
         ret.append(s.grid)
         s = s.parent
-    return ret
+    return ret[::-1]
 
 def OrdHeuristic(s: State):
     g = goal
@@ -65,8 +65,15 @@ def OrdHeuristic(s: State):
                 ret += abs(ord(j))
     return ret
 
-#def heuristic():
-#    pass
+def arthmetic_heuristic(s: State):
+    correctPositions = 0
+    for i in range(len(s.grid)):
+        if s.grid[i] == goal.grid[i]:
+            correctPositions += i
+        else:
+            correctPositions -= i
+    return -1* correctPositions
+
 
 with open(sys.argv[1], 'r') as f:
     lines = f.readlines()
@@ -85,10 +92,6 @@ def goalTest(s: State):
     g = goal
     return s.grid == g.grid
 
-#MoveGen(start, OrdHeuristic)
-
-#for i in range(len(State.stateNeighbours)):
-#    print(State.stateNeighbours[i][1].grid)
 
 def BestFirstSearch(heuristic):
     #insert start in priorQueue
@@ -100,12 +103,12 @@ def BestFirstSearch(heuristic):
         current = heapq.heappop(State.stateNeighbours)[1]
         State.stateHistory.append(current)
         if goalTest(current):
-            return current
+            path = backTrace(current)
+            return path
         else :
             MoveGen(current,heuristic)
 
-ans = BestFirstSearch(OrdHeuristic)
+ans = BestFirstSearch(arthmetic_heuristic)
 
-ans = backTrace(ans)
-for i in range(len(ans)-1,-1,-1):
+for i in range(len(ans)):
     print(ans[i])
