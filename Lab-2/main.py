@@ -90,7 +90,7 @@ def L2Norm(s: State):
                     if j in  s.grid[k]:
                         ret += (abs(i -k)**2 + abs(g.grid[i].index(j)-s.grid[k].index(j))**2)
 
-def Heuristic3(s: State):
+def PositionBased(s: State):
     pass
 
 def HillClimbing(heuristic):
