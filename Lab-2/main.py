@@ -65,6 +65,33 @@ def OrdHeuristic(s: State):
                 ret += abs(ord(j))
     return ret
 
+def Heuristic1(s: State):
+    pass
+
+def Heuristic2(s: State):
+    pass
+
+def Heuristic3(s: State):
+    pass
+
+def HillClimbing(heuristic):
+    if goalTest(start):
+        return start
+    heapq.heappush(State.stateNeighbours,(0,start))
+    current = heapq.heappop(State.stateNeighbours)[1]
+    State.stateHistory.append(current)
+    while State.stateNeighbours !=[]:
+        if goalTest(current):
+            return current
+        MoveGen(current)
+        tmp = heapq.heappop(State.stateNeighbours)[1]
+        State.stateHistory.append(tmp)
+        if heuristic(tmp) > heuristic(current):
+            current = tmp
+
+
+    
+
 #def heuristic():
 #    pass
 
@@ -78,8 +105,8 @@ with open(sys.argv[1], 'r') as f:
     startState = inputLine[:3]
     goalState = inputLine[-3:]
     del inputLine
-start = State([["A", "E"], ["F"], ["B","D"]])
-goal = State([["A","B"],["D","E","F"],[]])
+start = State([[], ["B","A"], ["C"]])
+goal = State([[],[],["C","B","A"]])
 
 def goalTest(s: State):
     g = goal
@@ -104,7 +131,8 @@ def BestFirstSearch(heuristic):
         else :
             MoveGen(current,heuristic)
 
-ans = BestFirstSearch(OrdHeuristic)
+#ans = BestFirstSearch(OrdHeuristic)
+ans = HillClimbing(OrdHeuristic)
 
 ans = backTrace(ans)
 for i in range(len(ans)-1,-1,-1):
