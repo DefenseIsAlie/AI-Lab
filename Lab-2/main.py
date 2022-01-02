@@ -1,4 +1,4 @@
-import sys, collections, typing, copy, heapq
+import sys, collections, typing, copy, heapq, time
 
 #t = sys.argv[1]
 #Input = open(t)
@@ -40,18 +40,21 @@ def MoveGen(state, heuristic):
                 h = heuristic(newState_1)
                 # add the new state to the priority queue
                 heapq.heappush(State.stateNeighbours, (h, newState_1))
+                State.stateHistory.append(newState_1)
             if newState_2.grid != state.grid and not any(newState_2.grid == x.grid for x in State.stateHistory):
                 newState_2.parent = state
                 # find the heuristic value of the new state
                 h = heuristic(newState_2)
                 # add the new state to the priority queue
                 heapq.heappush(State.stateNeighbours, (h, newState_2))
+                State.stateHistory.append(newState_2)
 
 def backTrace(s: State):
     ret = []
     while s.parent != None:
         ret.append(s.grid)
         s = s.parent
+    ret.append(s.grid)
     return ret[::-1]
 
 def OrdHeuristic(s: State):
@@ -101,24 +104,53 @@ def L2Norm(s: State):
     return ret
 
 def PositionBased(s: State):
-    pass
+    ret = 0
+    for i in range(len(s.grid)):
+        for j in range(len(s.grid[i])):
+            done = False
+            if j != 0:
+                for k in range(len(goal.grid)):
+                    if s.grid[i][j] in goal.grid[k] and s.grid[i][j-1] == goal.grid[k][goal.grid[k].index(s.grid[i][j])-1]:
+                        ret += j+1
+                        done = True
+                        break
+                if done == False:
+                    ret -= j+1
+            else:
+                for k in range(len(goal.grid)):
+                    if goal.grid[k] != [] and s.grid[i][j] == goal.grid[k][0]:
+                        ret += j+1
+                        done = True
+                        break
+                if done == False:
+                    ret -= j+1
+    return -1*ret
 
 def HillClimbing(heuristic):
     if goalTest(start):
         return start
     heapq.heappush(State.stateNeighbours,(0,start))
-    current = heapq.heappop(State.stateNeighbours)[1]
-    State.stateHistory.append(current)
-    heapq.heappush(State.stateNeighbours,(0,start))
-    while State.stateNeighbours !=[]:
+    tmp = heapq.heappop(State.stateNeighbours)
+    current = tmp[1]
+    max_hueristic = tmp[0]
+    proceed = True
+    while proceed == True:
+        State.stateNeighbours=[]
         if goalTest(current):
-            return current
+            path = backTrace(current)
+            return path
         MoveGen(current,heuristic)
-        tmp = heapq.heappop(State.stateNeighbours)[1]
-        State.stateHistory.append(tmp)
-        if heuristic(tmp) > heuristic(current):
-            current = State(copy.deepcopy(tmp.grid))
-
+        tmp = heapq.heappop(State.stateNeighbours)
+        node = tmp[1]
+        h1 = tmp[0]
+        State.stateHistory.append(node)
+        if h1 > max_hueristic:
+            current = node
+            max_hueristic = h1
+        else:
+            proceed = False
+            path = backTrace(current)
+            return path
 
     
 
@@ -135,7 +167,7 @@ with open(sys.argv[1], 'r') as f:
     startState = inputLine[:3]
     goalState = inputLine[-3:]
     del inputLine
-start = State([[], ["B","A","F"], ["C","G","E"]])
+start = State([[], ["F","A","B"],["E","G","C"]])
 goal = State([["G"],["F","E"],["C","B","A"]])
 
 def goalTest(s: State):
@@ -148,23 +180,24 @@ def BestFirstSearch(heuristic):
     #delete elements of priorQ one by one
     #if element is goal exit
     #else traverese neighbours
-    heapq.heappush(State.stateNeighbours,(0,start))
+    State.stateHistory.append(start)
+    heapq.heappush(State.stateNeighbours,(heuristic(start),start))
     while State.stateNeighbours != []:
         current = heapq.heappop(State.stateNeighbours)[1]
-        State.stateHistory.append(current)
         if goalTest(current):
             path = backTrace(current)
             return path
         else :
             MoveGen(current,heuristic)
-
-#ans = BestFirstSearch(OrdHeuristic)
-#ans = BestFirstSearch(L2Norm)
-#ans = BestFirstSearch(ManhattanHeuristic)
-ans = HillClimbing(ManhattanHeuristic)
-
-for l in State.stateHistory:
-    print(l)
-
+time_start = time.time()
+ans = BestFirstSearch(OrdHeuristic)
+# ans = BestFirstSearch(L2Norm)
+# ans = BestFirstSearch(ManhattanHeuristic)
+# ans = BestFirstSearch(PositionBased)
+# ans = HillClimbing(ManhattanHeuristic)
+end_time = time.time()
+print("time taken :",end_time-time_start)
+print("state explored: ", len(State.stateHistory))
+print("path length: ", len(ans))
 for i in range(len(ans)):
     print(ans[i])
