@@ -1,5 +1,5 @@
-EBF
-DA
+E B F
+A D
 C
-ADB
-EFC
+A D B
+E F C

@@ -1,0 +1,198 @@
+\documentclass{article}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{algorithm2e}
+\RestyleAlgo{ruled}
+
+\graphicspath{{~/Documents/sem4/AI_LAB/Lab-1/images/}}
+
+\title{CS 312 Assignment 2 Report; Team - 21}
+\author{M V Karthik (200010030), Josyula V N Taraka Abhishek (200010021)}
+
+\begin{document}
+\maketitle
+                 
+\section{Introduction}
+In this task, Block World Domain had to be implemented. Blocks World Domain Game
+starts with an initial state consisting of a fixed number of blocks arranged in 3 stacks and
+we can move only top blocks of the stacks. Blocks World is a planning problem where we
+know goal state beforehand and path to Goal state is more important. Essentially we have
+to achieve a goal state that is a particular arrangement of blocks by moving these blocks. 
+
+We compare the Best-First-Search and HillClimbing alogorithms on:
+\begin{enumerate}
+    \item Path Length
+    \item Number of states explored
+    \item Time Taken
+\end{enumerate}
+
+\section{Pseudo Codes}
+Pseudo code for  alogorithms is given below.
+
+\subsection{Function MoveGen(state)}
+
+
+\begin{algorithm}[H]
+    \caption{MoveGen(state)}
+    \textbf{Function} $MoveGen(state)$ \;
+    $NextStates \leftarrow [~~]$\;
+    \For{$Neighbour N of state in order(Heuristic value)$}{
+        $N = PriorityQue.pop()$
+        $NextStates.append(N)$
+    }
+    $return ~ NextStates$      
+\end{algorithm}
+
+\subsection{GoalTest(state)}
+Returns True if input state is goal state
+\\
+\begin{algorithm}[H]
+    \caption{GoalTest(state)}
+    \textbf{Function} $GoalTest(state)$ \;
+    \If{$state.value == goalState.value$}{
+        $return True$
+    }
+    $return False$
+\end{algorithm}
+
+\subsection{Arithmetic Heuristic: }
+\begin{verbatim}
+    def arthmetic_heuristic(s: State):
+    correctPositions = 0
+    for i in range(len(s.grid)):
+        if s.grid[i] == goal.grid[i]:
+            correctPositions += i
+        else:
+            correctPositions -= i
+    return -1* correctPositions
+\end{verbatim}
+
+\subsection{Ord Heuristic: }
+Add the order of the state if block is not in correct stack and absolut value of the difference if block is in correct stack and not at correct position.
+
+\begin{verbatim}
+    def OrdHeuristic(s: State):
+    g = goal
+    ret = 0
+    for i in range(len(s.grid)):
+        for j in s.grid[i]:
+            if j in g.grid[i]:
+                ret += abs(ord(j)-ord(g.grid[i][g.grid[i].index(j)]))
+            else:
+                ret += abs(ord(j))
+    return ret
+\end{verbatim}
+
+\subsection{Manhattan Heuristic: }
+Add the manhattan distance of the block if block is not in correct stack and absolut value of the difference if block is in correct stack and not at correct position.
+
+\begin{verbatim}
+    def ManhattanHeuristic(s: State):
+    g = goal
+    ret = 0
+    for i in range(3):
+        for j in g.grid[i]:
+            if j in s.grid[i]:
+                ret +=  abs((g.grid[i].index(j) - s.grid[i].index(j)))
+            else:
+                for k in range(3):
+                    if j in  s.grid[k]:
+                        ret += abs(i -k) + abs(g.grid[i].index(j)-s.grid[k].index(j))
+    return ret
+\end{verbatim}
+
+\subsection{PositionBased Heuristic}
+Subtract the heigth of the block if block is on the correct block with respect to the goal state otherwise add the height of the block.
+\begin{verbatim}
+    def PositionBased(s: State):
+    ret = 0
+    for i in range(len(s.grid)):
+        for j in range(len(s.grid[i])):
+            done = False
+            if j != 0:
+                for k in range(len(goal.grid)):
+                    if s.grid[i][j] in goal.grid[k] and s.grid[i][j-1] 
+                        == goal.grid[k][goal.grid[k].index(s.grid[i][j])-1]:
+                        ret += j+1
+                        done = True
+                        break
+                if done == False:
+                    ret -= j+1
+            else:
+                for k in range(len(goal.grid)):
+                    if goal.grid[k] != [] and s.grid[i][j] == goal.grid[k][0]:
+                        ret += j+1
+                        done = True
+                        break
+                if done == False:
+                    ret -= j+1
+    return -1*ret
+\end{verbatim}
+
+\subsection{L2Norm Heuristic}
+Instead of using manhattan distance, we use L2Norm.
+\begin{verbatim}
+    def L2Norm(s: State):
+    g = goal
+    ret = 0
+    for i in range(3):
+        for j in g.grid[i]:
+            if j in s.grid[i]:
+                ret +=  abs((g.grid[i].index(j) - s.grid[i].index(j)))**2
+            else:
+                for k in range(3):
+                    if j in  s.grid[k]:
+                        ret += (abs(i -k)**2 + abs(g.grid[i].index(j)-s.grid[k].index(j))**2)
+    return ret
+\end{verbatim}
+
+\section{How to run?}
+The code should be run as:
+
+$ \$python3 ~~ 21.py ~~ input.txt$
+
+output will be printed in terminal.
+
+
+
+
+\section{Data and Inference}
+All statistics related to output are listed here. These are the statistics for the input example given in problem statement.
+\begin{table}[H]
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        Algorithm&Heuristic&Path length&States Explored&Time Taken(sec)&Goal Reached \\
+        \hline
+        BFS & 1 & 77 & 3917 & 3.72 & Y \\
+        \hline
+        BFS & 2 & 60 & 1810 & 0.57 & Y \\
+        \hline
+        BFS & 3 & 66 & 2666 & 1.13 & Y \\
+        \hline
+        BFS & 4 & 23 & 319 & 0.02 & Y \\
+        \hline
+        \hline
+        HC & 1 & 3 & 13 & 0.00 & N \\
+        \hline
+        HC & 2 & 3 & 13 & 0.00 & N \\
+        \hline
+        HC & 3 & 3 & 13 &0.00 & N \\
+        \hline
+        HC & 4 & 2 & 9 & 0.00 & N \\
+        \hline
+    \end{tabular}
+\end{table}
+As expected, the Hill Climbing algorithm runs faster than Best First
+Search due to its greedy nature and lesser number of states explored.
+We couldn\rq t reach Optimal State in HillClimbing because of a drawback for the HillClimbing
+algorithm found a local maximum and is stuck in that. This is very general that optimal
+state is not reached in HillClimbing Algorithm.
+\section{Conclusion}
+
+From the results above, it is seen that Best First Search (BFS) always finds an optimal
+solution with the trade off of time, as it explores all possible N! states in the solution space.
+Conversely, on the other hand, the Hill Climbing Algorithm, has lesser execution time due
+recursive greedy selection in iterations but it cannot guarantee an optimal solution in all
+cases
+\end{document}
