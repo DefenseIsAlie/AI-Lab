@@ -13,9 +13,9 @@ def clauseEval(state : list, clause: list) -> bool:
     Evaluate a clause of the goal.
     """
     for i in clause:
-        if state[i] ==0:
-            return False
-    return True
+        if state[i] == 1:
+            return True
+    return False
 
 def heuristic(state : list, formula : list) -> int:
     """
