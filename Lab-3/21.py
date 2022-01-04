@@ -27,6 +27,17 @@ def heuristic(state : list, formula : list) -> int:
             heuristic_value += 1
     return heuristic_value
 
+def stateNeighbors(state : list) -> list:
+    """
+    Return the neighbors of a state.
+    """
+    neighbors = []
+    for i in range(len(state)):
+        neighbor = state[:]
+        neighbor[i] = (neighbor[i]+1)%2
+        neighbors.append(neighbor) # TODO: check if this state is already explored.
+    return neighbors
+
 
 def goalTest(state : list, goal : list) -> bool:
     """
@@ -39,6 +50,4 @@ Formula = []
 with open("clauses.txt") as f:
     for line in f:
         Formula.append(line.strip('\n').strip(']').strip('[').split(','))
-
-
     
