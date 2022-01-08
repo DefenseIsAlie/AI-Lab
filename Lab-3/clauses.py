@@ -43,6 +43,7 @@ def clausePrinter(n: int, k: int):
     for _ in range(k):
         OUTPUT.write(str(checkedLiterals(n))+"\n")
 
+    OUTPUT.write(f"{N},{K}")
 
 clausePrinter(N,K)
 

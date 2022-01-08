@@ -22,12 +22,41 @@ def BestofNeighbourHood(Neighbourhood: list):
             continue
     return x
 
-test = [[[1,1,1],[1,0,1]],[[0,0,1],[0,1,0]]]
+INP = open("clauses.txt")
 
-print(heuristic(test[0][0]))
+CNF = []
+for line in INP:
+    CNF.append(line.strip('\n').strip(']').strip('[').split(','))
 
-print(BestofNeighbourHood(test[0]))
+def complement(x: int,n: int):
+    ret = 0
+    if x <= n:
+        ret = n + x
+    elif x>n:
+        ret = x - N
+    elif x<=0 or x>2*n:
+        ret = 0
+    return ret
 
-print(VariableNeighbourHoodDescent(test))
+N = int(CNF[-1][0])
+K = int(CNF[-1][1])
 
+def NeighbourHoodsGen(L: list,N: int):
+    a = int(L[0])
+    b = int(L[1])
+    c = int(L[2])
+    ret = []
+    for i in range(3):
+        if i==0:
+            ret.append([a,b,complement(c,N)])
+            ret.append([a,complement(b,N),c])
+            ret.append([complement(a,N),b,c])
+        if i==1:
+            ret.append([complement(a,N),complement(b,N),c])
+            ret.append([a,complement(b,N),complement(c,N)])
+            ret.append([complement(a,N),b,complement(c,N)])
+        if i==2:
+            ret.append([complement(a,N),complement(b,N),complement(c,N)])
     
+    return ret
+
