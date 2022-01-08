@@ -1,3 +1,5 @@
+from itertools import combinations
+
 def logic(state: list) -> list:
     """
     Solve the logic problem.
@@ -27,15 +29,18 @@ def heuristic(state : list, formula : list) -> int:
             heuristic_value += 1
     return heuristic_value
 
-def stateNeighbors(state : list) -> list:
+def stateNeighbors(state : list, bitflips : int) -> list:
     """
-    Return the neighbors of a state.
+    Return the neighbors of a state. which are the possible states after
+    flipping a bit.
     """
     neighbors = []
-    for i in range(len(state)):
-        neighbor = state[:]
-        neighbor[i] = (neighbor[i]+1)%2
-        neighbors.append(neighbor) # TODO: check if this state is already explored.
+    comb = combinations(range(len(state)), bitflips)
+    for i in list(comb):
+        neighbor = list(state)
+        for j in i:
+            neighbor[j] = (neighbor[j]+1)%2
+        neighbors.append(neighbor)
     return neighbors
 
 
@@ -45,7 +50,48 @@ def goalTest(state : list, goal : list) -> bool:
     """
     return heuristic(state, Formula) == len(Formula)
 
+
+def BeamSearch(state : list, goal : list, beam_size : int) -> list:
+    """
+    Beam search algorithm.
+    """
+    frontier = [state]
+    statesExplored = []
+    while frontier:
+        for _ in range(beam_size):
+            if goalTest(frontier[0], goal):
+                return frontier[0]
+            else:
+                statesExplored.append(frontier[0])
+                for neighbor in stateNeighbors(frontier[0],1):
+                    if neighbor not in statesExplored:
+                        frontier.append(neighbor)
+        frontier.pop(0)
+    return None
+
+def variableNeighbor_descent(state : list, goal : list, Formula) -> list:
+    """
+    Variable neighbor descent algorithm.
+    """
+    bitflips = 1
+    frontier = [state]
+    statesExplored = []
+    while frontier:
+        neighbor = stateNeighbors(frontier[0], bitflips)
+        if neighbor not in statesExplored:
+            if goalTest(neighbor, goal):
+                return neighbor
+            else:
+                if heuristic(neighbor, Formula) < heuristic(frontier[0], Formula):
+                    frontier = [neighbor]
+                else:
+                    
+        frontier.pop(0)
+            
+    return None
+
 IntialState = [0,0,0]
+statesExplored = []
 Formula = []
 with open("clauses.txt") as f:
     for line in f:
