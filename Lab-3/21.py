@@ -85,7 +85,7 @@ def variableNeighbor_descent(state : list, goal : list, Formula) -> list:
                 if heuristic(neighbor, Formula) < heuristic(frontier[0], Formula):
                     frontier = [neighbor]
                 else:
-                    
+                    frontier.append(neighbor)
         frontier.pop(0)
             
     return None
