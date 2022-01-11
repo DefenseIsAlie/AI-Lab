@@ -1,5 +1,6 @@
 from itertools import combinations
 import numpy as np
+import random
 
 def logic(state: list) -> list:
     """
@@ -115,7 +116,6 @@ def BeamSearch(state : list, beam_size : int, Formula) -> list:
         statesExplored.append(current_state)
         if goalTest(current_state, Formula):
             return current_state, statesExplored
-        print(movegen( stateNeighbors(current_state, 1), Formula, beam_size))
         for i in  movegen(stateNeighbors(current_state, 1), Formula, beam_size):
             if  heuristic(i, Formula) > heuristic(current_state, Formula) and i not in statesExplored and i not in frontier:
                 frontier.append(i)
@@ -160,30 +160,104 @@ def tabuSearch(state : list, Formula, tabuTenure : int) -> list:
                 frontier.append(i)
     return None, statesExplored
     
+########################### writing clauses to file #############################
+OUTPUT = open("clauses.txt","w")
 
-IntialState = [0,0,0,0]
+N = 4
+K = 10
+
+def generateLiterals(n: int):
+    ret = []
+    ret.append(random.randrange(1,2*n+1))
+    ret.append(random.randrange(1,2*n+1))
+    ret.append(random.randrange(1,2*n+1))
+    return ret
+
+def checkedLiterals(n: int):
+    ret = []
+    checkpass = True
+    while checkpass:
+        ret = generateLiterals(n)
+        for x in ret:
+            if ret.count(x) != 1:
+                checkpass = True
+            elif complement(x,n) in ret:
+                checkpass = True
+            else:
+                checkpass = False
+            if checkpass:
+                break
+    return ret
+
+def complement(x: int,n: int):
+    ret = 0
+    if x <= n:
+        ret = n + x
+    elif x>n:
+        ret = x - N
+    elif x<=0 or x>2*n:
+        ret = 0
+    return ret
+
+def clausePrinter(n: int, k: int):
+    for _ in range(k):
+        OUTPUT.write(str(checkedLiterals(n))+"\n")
+clausePrinter(N,K)
+OUTPUT.close()
+
+########################### reading clauses from file #############################
+IntialState = [0]*N
 statesExplored = []
 Formula = []
 with open("clauses.txt") as f:
     for line in f:
         Formula.append(line.strip('\n').strip(']').strip('[').split(','))
-TabuIntialState = (IntialState, [0,0,0,0])
+TabuIntialState = (IntialState, [0]*N)
 
-# interaction with user
-print("Enter 1 for Beam Search")
-print("Enter 2 for Variable Neighbor Descent")
-print("Enter 3 for Tabu Search")
-print("Enter 4 for Exit")
+print("CNF circuit :", Formula)
+print("1 to 4 : normal variable, 5 to 8 : negated variable\n\n")
+print("Input State: ", IntialState)
+########################### running algorithms #############################
+
 while True:
+    print("Enter 1 for Beam Search")
+    print("Enter 2 for Variable Neighbor Descent")
+    print("Enter 3 for Tabu Search")
+    print("Enter 4 for Exit")
     choice = int(input("Enter your choice : "))
     if choice == 1:
-        print(BeamSearch(IntialState, 10, Formula))
+        ans = BeamSearch(IntialState, 10, Formula)
+        if ans[0] != None:
+            print("\n\nSolution :", ans[0])
+            print("States Explored :", ans[1])
+            print("\n\n")
+        else:
+            print("No solution found")
+            print("States Explored :", ans[1])
+            print("\n\n")
     elif choice == 2:
-        print(variableNeighbor_descent(IntialState, Formula))
+        ans = variableNeighbor_descent(IntialState, Formula)
+        if ans[0] != None:
+            print("\n\nSolution :", ans[0])
+            print("States Explored :", ans[1])
+            print("\n\n")
+        else:
+            print("No solution found")
+            print("States Explored :", ans[1])
+            print("\n\n")
     elif choice == 3:
-        print(tabuSearch(TabuIntialState, Formula, 2))
+        ans = tabuSearch(TabuIntialState, Formula, 10)
+        if ans[0] != None:
+            print("\n\nSolution :", ans[0])
+            print("States Explored :", ans[1])
+            print("\n\n")
+        else:
+            print("No solution found")
+            print("States Explored :", ans[1])
+            print("\n\n")
     elif choice == 4:
         break
     else:
-        print("Invalid choice")
+        print("Invalid Choice")
         continue
+    
