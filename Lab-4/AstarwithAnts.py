@@ -21,7 +21,7 @@ OUTPUT = open("output.txt", "w")
 Q = 100
 alpha = 0.9
 beta = 20
-rho = 0.2
+rho = 0.3
 
 h = numpy.zeros((N, N))
 
@@ -87,7 +87,7 @@ class ANT:
         if ANT.Q == []:
             ANT.Q = list(range(N))
         initial = ANT.Q.pop()
-        # initial = random.randint(0, N-1)
+        # initial = random.randint(0, N - 1)
         self.validCities.remove(initial)
         self.currentPath.append(initial)
 
@@ -113,7 +113,9 @@ class ANT:
         if self.pathCost < G.bestCost:
             G.bestCost = self.pathCost
             G.bestTour = copy.deepcopy(self.currentPath)
-            OUTPUT.write(f"The tour found with cost {G.bestCost} is: \n")
+            OUTPUT.write(
+                f"The tour found with cost : {G.bestCost} at {time.time() - start}\n"
+            )
             OUTPUT.write(" ".join(map(str, G.bestTour)))
             OUTPUT.write("\n \n")
         self.currentPath = []
@@ -147,7 +149,7 @@ colonize()
 til = time.time() - ti
 print(f"Colonized in {til}")
 
-for _ in range(int(290 / til)):
+for _ in range(int(40 / til)):
     for ant in Ants:
         ant.getPath(g)
 
@@ -157,86 +159,76 @@ for _ in range(int(290 / til)):
     g.updateProb()
 
 H = numpy.zeros((N, N))
-F = numpy.zeros(N)
-Parent = numpy.zeros(N)
 
 for i in range(N):
     for j in range(N):
-        if h[i][j] != 0:
+        if h[i][j] > 1:
             H[i][j] = 1 / h[i][j] * g.matrix[i][j]
-        else:
-            H[i][j] = numpy.inf
+        elif h[i][j] == 0:
+            H[i][j] = g.matrix[i][j]
+        elif h[i][j] == 0.5:
+            H[i][j] = 0.9 * g.matrix[i][j]
+        elif h[i][j] == 1:
+            H[i][j] = 0.95 * g.matrix[i][j]
+
+OUTPUT.close()
 
 
-def GoalTest(n):
-    ret = []
-    curr = n
-    ret.append(curr)
-    while curr != -1:
-        curr = Parent[curr]
-        ret.append(curr)
-    ret.remove(-1)
-    if len(ret) == N:
-        return True
-    else:
-        return False
+class Solution:
+    upperBound = g.bestCost
 
+    def __init__(self, n: int) -> None:
+        self.F = 0
+        self.G = 0
+        self.Path = [n]
+        self.pathCost = 0
 
-def Path(n):
-    ret = []
-    curr = n
-    ret.append(curr)
-    while curr != -1:
-        curr = Parent[curr]
-        ret.append(curr)
-    ret.remove(-1)
-    return ret
+    def getPathCost(self, l: list):
+        ret = 0
+        k = len(l)
+        for i in range(k):
+            ret += g.matrix[l[i]][l[(i + 1) % k]]
+        return ret
 
+    def MoveGen(self):
+        ret = []
+        l = [x for x in list(range(N)) if x not in self.Path]
+        l.sort(key=lambda a: H[self.Path[0]][a])
+        for x in l:
+            tmp = Solution(x)
+            tmp.Path = copy.deepcopy(self.Path)
+            tmp.Path.append(x)
+            tmp.pathCost = self.pathCost + g.matrix[self.Path[0]][x]
+            tmp.G = self.G + g.matrix[self.Path[-1]][x]
+            tmp.F = tmp.G + H[self.Path[-1]][x]
+            ret.append(tmp)
 
-def MoveGen(n):
-    path = []
-    curr = n
-    path.append(curr)
-    while curr != -1:
-        curr = Parent[curr]
-        path.append(curr)
-    path.remove(-1)
-    ret = [x for x in range(0, N)]
-    ret.sort(key=lambda a: H[n][a])
-    ti = ret[: N // 2]
-    tmp = [x for x in ti if x not in path]
-    if tmp == []:
-        return [x for x in ret[N // 2 :] if x not in path]
-    else:
-        return tmp
+        return ret
 
 
 def A_Star():
-    a = random.randint(0, N - 1)
     Open = []
     heapq.heapify(Open)
-    F[a] = H[a][0]
-    heapq.heappush(Open, (F[a], a))
-    Parent[a] = -1
-    Closed = []
+    tmp = Solution(random.randint(0, N - 1))
+    tmp.Path = copy.deepcopy(g.bestTour[: N // 2])
+    tmp.G = tmp.getPathCost(tmp.Path) - g.matrix[tmp.Path[-1]][tmp.Path[0]]
+    tmp.F = tmp.G
+    heapq.heappush(Open, (tmp.F, tmp))
+
     while Open != []:
         n = heapq.heappop(Open)[1]
-        Closed.append(n)
-        if GoalTest(n):
-            return Path(n)
+        if len(n.Path) == N:
+            return n
+        Neighbours = n.MoveGen()
+        for soln in Neighbours:
+            if soln.pathCost > Solution.upperBound:
+                continue
+            heapq.heappush(Open, (soln.F, soln))
 
-        Neighbour = MoveGen(n)
-        for node in Neighbour:
-            if (F[node], node) not in Open and node not in Closed:
-                heapq.heappush(Open, (F[node], node))
+    return "fail"
 
-            if (F[node], node) in Open:
-                pass
-            if node in Closed:
-                pass
 
-    return "failure"
+# ans = A_Star()
 
 
 print(f"Executed in {time.time()-start}")
-OUTPUT.close()
