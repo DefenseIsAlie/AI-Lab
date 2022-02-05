@@ -149,7 +149,7 @@ colonize()
 til = time.time() - ti
 print(f"Colonized in {til}")
 
-for _ in range(int(40 / til)):
+for _ in range(int(200 / til)):
     for ant in Ants:
         ant.getPath(g)
 
@@ -229,7 +229,7 @@ def A_Star():
  """
 
 
-def Lin_Keringhan():
+def MOD_Lin_Keringhan():
     pass
 
 
