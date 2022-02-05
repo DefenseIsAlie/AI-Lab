@@ -114,7 +114,7 @@ class ANT:
             G.bestCost = self.pathCost
             G.bestTour = copy.deepcopy(self.currentPath)
             OUTPUT.write(
-                f"The tour found with cost : {G.bestCost} at {time.time() - start}\n"
+                f"The tour found with cost : {G.bestCost} at {time.time() - start} seconds\n"
             )
             OUTPUT.write(" ".join(map(str, G.bestTour)))
             OUTPUT.write("\n \n")
@@ -158,7 +158,7 @@ for _ in range(int(40 / til)):
     g.updateDeltaProb()
     g.updateProb()
 
-H = numpy.zeros((N, N))
+""" H = numpy.zeros((N, N))
 
 for i in range(N):
     for j in range(N):
@@ -226,9 +226,11 @@ def A_Star():
             heapq.heappush(Open, (soln.F, soln))
 
     return "fail"
+ """
 
 
-# ans = A_Star()
+def Lin_Keringhan():
+    pass
 
 
 print(f"Executed in {time.time()-start}")
