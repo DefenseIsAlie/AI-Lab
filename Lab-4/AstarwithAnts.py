@@ -21,9 +21,9 @@ OUTPUT = open("output.txt", "w")
 timedelay = 0
 
 if N >= 250:
-    timedelay = 30
+    timedelay = 50
 else:
-    timedelay = 20
+    timedelay = 40
 
 Q = 100
 alpha = 0.9
@@ -87,7 +87,7 @@ class Graph:
             if time.time() - Graph.solchange > timedelay:
                 self.Phermones = numpy.ones((N, N))
         else:
-            if time.time() - Graph.solchange > timedelay and Graph.iterrr <= 1:
+            if time.time() - Graph.solchange > timedelay and Graph.iterrr < 1:
                 Graph.iterrr += 1
                 self.Phermones = numpy.ones((N, N))
 
