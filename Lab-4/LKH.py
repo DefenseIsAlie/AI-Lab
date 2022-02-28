@@ -18,6 +18,15 @@ secondN = Inp[N:]
 
 OUTPUT = open("output.txt", "w")
 
+rrr = 0
+
+if N <= 100:
+    rrr = 20
+elif N > 100 and N < 300:
+    rrr = 12
+else:
+    rrr = 6
+
 
 class Graph:
     def __init__(self) -> None:
@@ -75,18 +84,14 @@ class Graph:
             self.alphaNearness[i][i] = math.inf
             for j in range(i + 1, N):
                 if i == 0:
-                    self.alphaNearness[i][j] = self.mst0 - rec + self.matrix[i][j]
-                    self.alphaNearness[j][i] = self.mst0 - rec + self.matrix[i][j]
+                    self.alphaNearness[i][j] = -rec + self.matrix[i][j]
+                    self.alphaNearness[j][i] = -rec + self.matrix[i][j]
                 elif {"u": i, "v": j, "w": self.matrix[i][j]} in self.mst[0]:
                     self.alphaNearness[i][j] = 0
                     self.alphaNearness[j][i] = 0
                 else:
-                    self.alphaNearness[i][j] = (
-                        self.mst0 - Beta[i][j] + self.matrix[i][j]
-                    )
-                    self.alphaNearness[j][i] = (
-                        self.mst0 - Beta[i][j] + self.matrix[i][j]
-                    )
+                    self.alphaNearness[i][j] = -Beta[i][j] + self.matrix[i][j]
+                    self.alphaNearness[j][i] = -Beta[i][j] + self.matrix[i][j]
         fin = time.time()
         print(f"complete alpha nearness in {fin - start}")
 
@@ -162,7 +167,57 @@ class Graph:
             return False
 
     def Lin_Keringhan(self):
-        T = [self.genRandTour() for _ in range(15)]
+        T = [self.genRandTour() for _ in range(rrr)]
+
+        XX = []
+        YY = []
+
+        for Tour in T:
+            for x in Tour[2]:
+                XX = []
+                YY = []
+                XX.append(x)
+                setx = [(self.alphaNearness[x["v"]][_], _) for _ in range(N)]
+                setx.sort()
+                L = [
+                    (self.matrix[x["u"]][x["v"]] - self.matrix[x["v"]][_], _)
+                    for _ in setx[:15]
+                ]
+                L.sort().reverse()
+
+                if L[0][0] <= 0:
+                    continue
+
+                bestT = Tour[2]
+                bestCost = Tour[1]
+                bestPath = Tour[0]
+
+                for y in L:
+                    if y[0] <= 0:
+                        continue
+                    YY.append()
+
+                    i = 1
+                    while True:
+                        i += 1
+                        Tdash = self.Choose_X(i, XX)
+
+                        XX.append(Tdash[0])
+
+                        # if Tdash[]
+
+                        Yi = self.Choose_Y(i, YY)
+
+                        if Yi[0] and Yi[1] and Yi[2]:
+                            continue
+                        else:
+                            break
+
+    def Choose_X(self, i, l):
+        pass
+
+    def Choose_Y(self, i, l):
+        pass
 
 
 g = Graph()
