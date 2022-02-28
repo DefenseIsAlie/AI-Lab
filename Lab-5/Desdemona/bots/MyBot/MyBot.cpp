@@ -47,8 +47,8 @@ MyBot::MyBot( Turn turn )
 
 Move MyBot::play( const OthelloBoard& board )
 {
-    //time(&start_time);
-    cout << "turn is " << turn << "\n";
+    time(&start_time);
+    //cout << "turn is " << turn << "\n";
     list<Move> moves = board.getValidMoves( turn );
 
     Move bestmove = moves.front();
@@ -64,14 +64,22 @@ Move MyBot::play( const OthelloBoard& board )
     /*
             MinMax Algo to get best move here
     */
-   //time(&heuristic_time);
 
    for (Move nextmove : moves){
-       //if(difftime(heuristic_time,start_time) < 1.95){
            
        OthelloBoard cardboard = OthelloBoard(board);
 
-       int Heuristic = Min_Max(cardboard,this->turn,24,nextmove); //Algo(nextmove);
+       int Heuristic = Min_Max(cardboard,this->turn,4,nextmove); //Algo(nextmove);
+
+       time(&this->heur_t);
+
+       if (difftime(this->heur_t,start_time)>1.6){
+           Heuristic = -12345;
+       }
+
+       if (Heuristic == -12345){
+           return bestmove;
+       }
 
        if (Heuristic > best_value && turn == 1){
            bestmove = nextmove;
@@ -83,15 +91,20 @@ Move MyBot::play( const OthelloBoard& board )
            best_value = Heuristic;
        }
 
-       //}else{
-       //    return bestmove;
-       //}
-       //time(&heuristic_time);
+
+
    }
     return bestmove;
 }
 
 int MyBot::Min_Max(OthelloBoard &board, Turn turn, int depth, Move move){
+
+    time(&heuristic_time);
+
+    if (difftime(heuristic_time,start_time)>1){
+        return -12345;
+    }
+
 
     if (depth == 0){
         return MyBot::Heuristic_Move(board,turn,depth,move);
@@ -101,14 +114,21 @@ int MyBot::Min_Max(OthelloBoard &board, Turn turn, int depth, Move move){
     cardboard.makeMove(turn,move);    
     list<Move> moves = cardboard.getValidMoves(other(turn));
     Move bestmove = moves.front();
-    int bestvalue;
+    int bestvalue = (turn == this->turn) ? 12345 : -12345;
     if (moves.size() == 0){
         return cardboard.getBlackCount() - cardboard.getRedCount();
     }
 
     if (turn == this->turn){ // if bots turn make max move and return best of mins turn
         for (Move nextmove : moves){
-        int Heuristic = MyBot::Heuristic_Move(cardboard,other(turn),depth,nextmove);
+        
+        time(&heuristic_time);
+
+        if (difftime(heuristic_time,start_time)>1){
+            continue;
+        }
+        
+        int Heuristic = MyBot::Min_Max(cardboard,other(turn),depth-1,nextmove);
         if (Heuristic<bestvalue){
             bestvalue = Heuristic;
             bestmove = nextmove;
@@ -118,13 +138,26 @@ int MyBot::Min_Max(OthelloBoard &board, Turn turn, int depth, Move move){
 
     if (turn == other(this->turn)){  // if not bots turn make min move and return best of maxs turn
         for (Move nextmove : moves){
-        int Heuristic = MyBot::Heuristic_Move(cardboard,other(turn),depth,nextmove);
+
+            time(&heuristic_time);
+
+            if (difftime(heuristic_time,start_time)>1){
+                continue;
+            }
+
+        int Heuristic = MyBot::Min_Max(cardboard,other(turn),depth-1,nextmove);
         if (Heuristic>bestvalue){
             bestvalue = Heuristic;
             bestmove = nextmove;
         }
         }
     }    
+
+    time(&heuristic_time);
+
+    if (difftime(heuristic_time,start_time)>1){
+        return -12345;
+    }
 
     return MyBot::Min_Max(cardboard,other(turn),depth-1,bestmove);
 }
