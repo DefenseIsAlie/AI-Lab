@@ -2,10 +2,11 @@ import pandas as pd
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 import sys
 
 try:
-    data = pd.read_csv(sys.argv[1])
+    data = pd.read_csv(sys.argv[1],header=None)
 except:
     print("Usage: python 21.py <path-to-spambase.data>")
     sys.exit(1)
@@ -14,12 +15,15 @@ except:
 # split data to features and labels
 x = data.drop([57],axis='columns')
 y = data[57]
+# scale data
+scaler = StandardScaler()
+x = scaler.fit_transform(x)
 
 # split data to train and test
 x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.3)
 
 
-C_values = [0.0005]
+C_values = [0.001,0.01,0.1,1,10,100, 500]
 kernal_names = ['linear', 'poly', 'rbf']
 test_accuracy_table = pd.DataFrame(columns=['C', 'Linear', 'Poly', 'RBF'])
 train_accuracy_table = pd.DataFrame(columns=['C', 'Linear', 'Poly', 'RBF'])
@@ -29,7 +33,7 @@ for c in C_values:
   train_accuracies = []
   for ker in kernal_names:
 
-    classifier = SVC(C=c, kernel=ker , max_iter=1e8)
+    classifier = SVC(C=c, kernel=ker, degree=2 , max_iter=1e8)
     classifier.fit(x_train, y_train)
     y_pred_train = classifier.predict(x_train)
     accuracy_train = accuracy_score(y_train, y_pred_train)
