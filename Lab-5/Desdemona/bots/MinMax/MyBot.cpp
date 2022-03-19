@@ -69,7 +69,7 @@ Move MyBot::play( const OthelloBoard& board )
            
        OthelloBoard cardboard = OthelloBoard(board);
 
-       int Heuristic = Min_Max(cardboard,this->turn,4,nextmove); //Algo(nextmove);
+       int Heuristic = Min_Max(cardboard,this->turn,6,nextmove); //Algo(nextmove);
 
        time(&this->heur_t);
 
@@ -172,7 +172,7 @@ int MyBot::Min_Max(OthelloBoard &board, Turn turn, int depth, Move move){
         return -12345;
     }
 
-    return MyBot::Min_Max(cardboard,other(turn),depth-1,bestmove);
+    return bestvalue;
 }
 
 // Returns Heuristic if turn,move is made;
