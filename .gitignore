@@ -1,0 +1,6 @@
+.vscode
+*.json
+Lab-6/lab6/**
+.settings
+Lab-4/submission/LKH-2.0.9/**
+__pycache__/**
